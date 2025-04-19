@@ -13,6 +13,8 @@ import sellerRoutes from './routes/sellerRoutes.js'; // Import seller routes
 import cartRoutes from './routes/cartRoutes.js'; // Import cart routes
 import orderRoutes from './routes/orderRoutes.js'; // Import order routes
 import paymentRoutes from './routes/paymentRoutes.js'; // Import payment routes
+import shippingRoutes from './routes/shippingRoutes.js'; // Import shipping routes
+import addressRoutes from './routes/addressRoutes.js'; // Import address routes
 
 const app = express();
 const PORT = 3001;
@@ -35,6 +37,8 @@ app.use('/api', sellerRoutes); // Use seller routes
 app.use('/api', cartRoutes); // Use cart routes
 app.use('/api/orders', orderRoutes); // Use order routes
 app.use('/api/payments', paymentRoutes); // Use payment routes
+app.use('/api/shipping', shippingRoutes); // Use shipping routes
+app.use('/api', addressRoutes); // Use address routes
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

@@ -61,15 +61,32 @@ export const updateAddressById = async (req, res) => {
 
 export const getAllAddresses = async (req, res) => {
   try {
-    // Ensure the user is an admin
-    if (req.user.role !== 'admin') {
-      return res.status(403).json({ message: 'Access denied. Admins only.' });
+    const user_id = req.user.id;
+    const user_role = req.user.role;
+
+    let query = '';
+    let params = [];
+
+    // Admin can view all addresses
+    if (user_role === 'admin') {
+      query = `
+        SELECT a.address_id, a.user_id, u.name AS user_name, a.street_address, a.province, a.postal_code, a.country 
+        FROM address a 
+        JOIN users u ON a.user_id = u.user_id
+      `;
+    } 
+    // Users and sellers can view only their own addresses
+    else {
+      query = `
+        SELECT a.address_id, a.user_id, a.street_address, a.province, a.postal_code, a.country 
+        FROM address a 
+        WHERE a.user_id = ?
+      `;
+      params = [user_id];
     }
 
-    // Fetch all addresses
-    const [addresses] = await pool.query(
-      'SELECT a.address_id, a.user_id, u.name AS user_name, a.street_address, a.province, a.postal_code, a.country FROM address a JOIN users u ON a.user_id = u.user_id'
-    );
+    // Execute the query
+    const [addresses] = await pool.query(query, params);
 
     res.json(addresses);
   } catch (error) {

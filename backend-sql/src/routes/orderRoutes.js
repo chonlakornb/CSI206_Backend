@@ -1,5 +1,5 @@
 import express from 'express';
-import { createOrder, getOrders, getOrderById, updateOrderStatus } from '../controllers/orderController.js';
+import { createOrder, getOrders, getOrderById, updateOrderStatus, deleteOrderById } from '../controllers/orderController.js';
 import { authMiddleware } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
@@ -9,17 +9,27 @@ const router = express.Router();
  * /api/orders:
  *   post:
  *     summary: Create a new order
- *     description: Create a new order from the user's cart.
+ *     description: Create a new order from the user's cart and associate it with a selected address.
  *     tags: [Orders]
  *     security:
  *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               address_id:
+ *                 type: integer
+ *                 description: The ID of the address to associate with the order.
  *     responses:
  *       201:
  *         description: Order created successfully.
  *       400:
- *         description: Cart is empty.
- *       401:
- *         description: Unauthorized.
+ *         description: Cart is empty or invalid address.
+ *       404:
+ *         description: Address not found or does not belong to the user.
  *       500:
  *         description: Internal server error.
  */
@@ -116,5 +126,31 @@ router.get('/:id', authMiddleware, getOrderById);
  *         description: Internal server error.
  */
 router.put('/:id/status', authMiddleware, updateOrderStatus);
+
+/**
+ * @swagger
+ * /api/orders/{id}:
+ *   delete:
+ *     summary: Delete an order
+ *     description: Delete an order by its ID. Users can delete their own orders, and admins can delete any order.
+ *     tags: [Orders]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: The ID of the order to delete.
+ *     responses:
+ *       200:
+ *         description: Order deleted successfully.
+ *       404:
+ *         description: Order not found or access denied.
+ *       500:
+ *         description: Internal server error.
+ */
+router.delete('/:id', authMiddleware, deleteOrderById);
 
 export default router;
